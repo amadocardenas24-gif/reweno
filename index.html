@@ -73,6 +73,7 @@
             cursor: pointer;
             font-weight: bold;
             margin-top: 20px;
+            display: none; /* Oculto por defecto */
         }
 
         .offline-warning {
@@ -240,22 +241,11 @@
                 console.log('📴 Modo offline detectado');
             }
             
-            // Verificar recursos básicos (sin fetch)
-            checkResourcesOffline();
-        }
-
-        // ===== VERIFICACIÓN OFFLINE (SIN FETCH) =====
-        function checkResourcesOffline() {
-            console.log('📁 Verificando archivos locales...');
+            // Mostrar el botón de inicio inmediatamente
+            elements.startBtn.style.display = 'block';
+            elements.retryBtn.style.display = 'none';
             
-            // Mostrar mensaje de archivos requeridos
-            elements.startBtn.innerHTML = `INICIAR<br><small>Requiere: ${CONFIG.videoFile}</small>`;
-            
-            // Simplemente mostrar el botón después de un breve delay
-            setTimeout(() => {
-                elements.startBtn.disabled = false;
-                elements.retryBtn.style.display = 'none';
-            }, 1000);
+            console.log('✅ Aplicación lista para usar offline');
         }
 
         // ===== CREAR ESCENA AR (OFFLINE COMPATIBLE) =====
