@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imanes Turísticos AR - Con Tucán</title>
+    <title>Imanes Turísticos AR - Escaneo</title>
     
     <script src="aframe.min.js"></script>
     <script src="mindar-image-aframe.prod.js"></script>
@@ -24,14 +24,14 @@
             overflow: hidden;
         }
 
-        /* PANTALLA DE BIENVENIDA CON TUCÁN */
-        #welcome-screen {
+        /* PANTALLA DE INICIO */
+        #start-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0d47a1, #1565c0);
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -39,139 +39,44 @@
             text-align: center;
             padding: 20px;
             z-index: 1000;
-            animation: fadeIn 1s ease-in;
-        }
-
-        .tucan-container {
-            width: 250px;
-            height: 250px;
-            margin-bottom: 30px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .tucan-image {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 5px solid #FF9800;
-            object-fit: cover;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .welcome-title {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #FF9800;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .welcome-subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 40px;
-            max-width: 400px;
-            line-height: 1.5;
-        }
-
-        .btn {
-            background: linear-gradient(45deg, #FF9800, #FF5722);
-            color: black;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 10px;
-            min-width: 200px;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-            color: white;
-        }
-
-        /* PANTALLA PRINCIPAL */
-        #main-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a237e, #0d47a1);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            z-index: 900;
         }
 
         .logo {
-            font-size: 4rem;
+            font-size: 5rem;
             margin-bottom: 20px;
             animation: pulse 2s infinite;
         }
 
         .title {
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin-bottom: 10px;
             color: #FF9800;
         }
 
-        /* LOGIN MODAL */
-        #login-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            max-width: 400px;
         }
 
-        .login-box {
-            background: linear-gradient(135deg, #1a237e, #283593);
-            padding: 40px 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 350px;
-            text-align: center;
-            border: 2px solid #FF9800;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .login-title {
-            font-size: 1.8rem;
-            margin-bottom: 30px;
-            color: #FF9800;
-        }
-
-        .login-input {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
+        .start-btn {
+            background: linear-gradient(45deg, #FF9800, #FF5722);
+            color: black;
             border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 18px 50px;
+            font-size: 1.3rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
         }
 
-        .login-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 30px rgba(255, 152, 0, 0.6);
         }
 
         /* ESCENA AR */
@@ -182,7 +87,80 @@
             width: 100%;
             height: 100%;
             display: none;
-            z-index: 800;
+        }
+
+        /* EFECTO DE ESCANEO */
+        #scan-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            z-index: 998;
+            pointer-events: none;
+        }
+
+        .scan-container {
+            position: absolute;
+            top: 20%;
+            left: 10%;
+            right: 10%;
+            height: 60%;
+            border: 3px solid #00ff00;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .scan-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                #00ff00 20%, 
+                #00ff00 80%, 
+                transparent 100%
+            );
+            box-shadow: 0 0 10px #00ff00;
+            animation: scan 2s linear infinite;
+        }
+
+        .scan-corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #00ff00;
+        }
+
+        .corner-tl {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-tr {
+            top: -3px;
+            right: -3px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-bl {
+            bottom: -3px;
+            left: -3px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-br {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
         }
 
         /* BOTÓN SALIR */
@@ -190,19 +168,20 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: rgba(244, 67, 54, 0.9);
+            background: rgba(244, 67, 54, 0.95);
             border: 2px solid white;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             cursor: pointer;
             display: none;
             z-index: 999;
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
         }
 
         #exit-btn:hover {
@@ -218,24 +197,24 @@
             width: 100%;
             display: none;
             justify-content: center;
-            gap: 20px;
+            gap: 25px;
             z-index: 999;
         }
 
         .ar-btn {
-            width: 65px;
-            height: 65px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: rgba(33, 150, 243, 0.9);
+            background: rgba(33, 150, 243, 0.95);
             border: 2px solid white;
             color: white;
-            font-size: 1.8rem;
+            font-size: 2rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 20px rgba(33, 150, 243, 0.4);
         }
 
         .ar-btn:hover {
@@ -243,34 +222,57 @@
             background: rgba(33, 150, 243, 1);
         }
 
-        /* MENSAJES */
-        #message {
+        /* INDICADOR DE ESTADO */
+        #status {
             position: fixed;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             color: white;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 0.9rem;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
             display: none;
             z-index: 999;
             text-align: center;
             border: 2px solid #FF9800;
-            max-width: 80%;
+            max-width: 90%;
             backdrop-filter: blur(10px);
         }
 
-        /* ANIMACIONES */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* PUNTOS DE ESCANEO */
+        .scan-dots {
+            position: absolute;
+            width: 100%;
+            height: 100%;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+        .scan-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: dotAppear 1s infinite alternate;
+        }
+
+        /* ANIMACIONES */
+        @keyframes scan {
+            0% {
+                top: 0%;
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
         }
 
         @keyframes pulse {
@@ -278,54 +280,67 @@
             50% { transform: scale(1.05); }
         }
 
-        .loading {
-            font-size: 1rem;
-            margin-top: 20px;
-            color: #FF9800;
-            animation: pulse 1.5s infinite;
+        @keyframes dotAppear {
+            0% {
+                opacity: 0.2;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes cornerPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .scan-corner {
+            animation: cornerPulse 1.5s infinite;
+        }
+
+        .corner-tl { animation-delay: 0s; }
+        .corner-tr { animation-delay: 0.5s; }
+        .corner-bl { animation-delay: 1s; }
+        .corner-br { animation-delay: 1.5s; }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .logo { font-size: 4rem; }
+            .title { font-size: 2rem; }
+            .subtitle { font-size: 1rem; }
+            .start-btn { padding: 15px 40px; font-size: 1.2rem; }
+            .ar-btn { width: 60px; height: 60px; font-size: 1.6rem; }
+            #exit-btn { width: 50px; height: 50px; font-size: 1.5rem; }
+            .scan-container {
+                top: 25%;
+                height: 50%;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- PANTALLA DE BIENVENIDA CON TUCÁN -->
-    <div id="welcome-screen">
-        <div class="tucan-container">
-            <!-- Reemplaza "tucan.jpg" con tu imagen de tucán -->
-            <img src="tucan.jpg" alt="Tucán" class="tucan-image" 
-                 onerror="this.src='https://cdn.pixabay.com/photo/2017/02/07/16/47/toucan-2046453_1280.png'">
-        </div>
-        
-        <h1 class="welcome-title">¡BIENVENIDO!</h1>
-        <p class="welcome-subtitle">
-            Descubre una experiencia única en Realidad Aumentada.<br>
-            Escanea tus imanes turísticos para ver contenido exclusivo.
-        </p>
-        
-        <button class="btn" id="enter-btn">COMENZAR AVENTURA 🚀</button>
-        <p class="loading" id="auto-load">Iniciando automáticamente en 5 segundos...</p>
-    </div>
-
-    <!-- PANTALLA PRINCIPAL -->
-    <div id="main-screen">
+    <!-- PANTALLA DE INICIO -->
+    <div id="start-screen">
         <div class="logo">🦜</div>
         <h1 class="title">IMANES TURÍSTICOS AR</h1>
-        <p class="welcome-subtitle">¡Hola! Inicia sesión para comenzar la experiencia</p>
+        <p class="subtitle">Escanea cualquier imán turístico para activar contenido exclusivo en Realidad Aumentada</p>
         
-        <button class="btn" id="login-btn">🔐 INICIAR SESIÓN</button>
-        <button class="btn btn-secondary" id="start-btn">🎬 COMENZAR EXPERIENCIA</button>
+        <button class="start-btn" id="start-btn">
+            🔍 INICIAR ESCANEO
+        </button>
     </div>
 
-    <!-- MODAL DE LOGIN -->
-    <div id="login-modal">
-        <div class="login-box">
-            <h2 class="login-title">INICIAR SESIÓN</h2>
-            <input type="text" class="login-input" id="username" placeholder="Usuario o Email">
-            <input type="password" class="login-input" id="password" placeholder="Contraseña">
-            <button class="btn" id="submit-login" style="margin-top: 20px;">ENTRAR</button>
-            <button class="btn btn-secondary" id="cancel-login" style="margin-top: 10px;">CANCELAR</button>
-            <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.7;">
-                Demo: Usuario: admin | Contraseña: 1234
-            </p>
+    <!-- EFECTO DE ESCANEO -->
+    <div id="scan-overlay">
+        <div class="scan-container">
+            <div class="scan-line"></div>
+            <div class="scan-corner corner-tl"></div>
+            <div class="scan-corner corner-tr"></div>
+            <div class="scan-corner corner-bl"></div>
+            <div class="scan-corner corner-br"></div>
+            <div class="scan-dots" id="scan-dots"></div>
         </div>
     </div>
 
@@ -340,181 +355,118 @@
         <button class="ar-btn" id="replay-btn">↻</button>
     </div>
 
-    <!-- MENSAJES -->
-    <div id="message"></div>
+    <!-- INDICADOR DE ESTADO -->
+    <div id="status"></div>
 
     <script>
         // ===== VARIABLES GLOBALES =====
         let arVideo = null;
         let soundEnabled = false;
-        let isLoggedIn = false;
-        let currentUser = null;
-        let autoStartTimer = null;
+        let isARActive = false;
+        let scanInterval = null;
 
         // ===== ELEMENTOS DOM =====
         const elements = {
-            welcomeScreen: document.getElementById('welcome-screen'),
-            mainScreen: document.getElementById('main-screen'),
-            loginModal: document.getElementById('login-modal'),
+            startScreen: document.getElementById('start-screen'),
             arScene: document.getElementById('ar-scene'),
+            scanOverlay: document.getElementById('scan-overlay'),
             exitBtn: document.getElementById('exit-btn'),
             arControls: document.getElementById('ar-controls'),
-            message: document.getElementById('message'),
-            enterBtn: document.getElementById('enter-btn'),
-            loginBtn: document.getElementById('login-btn'),
+            status: document.getElementById('status'),
             startBtn: document.getElementById('start-btn'),
-            submitLogin: document.getElementById('submit-login'),
-            cancelLogin: document.getElementById('cancel-login'),
-            username: document.getElementById('username'),
-            password: document.getElementById('password'),
             soundBtn: document.getElementById('sound-btn'),
             infoBtn: document.getElementById('info-btn'),
             replayBtn: document.getElementById('replay-btn'),
-            autoLoadText: document.getElementById('auto-load')
+            scanDots: document.getElementById('scan-dots')
         };
 
-        // ===== MOSTRAR MENSAJE =====
-        function showMessage(text, duration = 3000) {
-            elements.message.textContent = text;
-            elements.message.style.display = 'block';
+        // ===== CREAR PUNTOS DE ESCANEO =====
+        function createScanDots() {
+            elements.scanDots.innerHTML = '';
+            const dotCount = 30;
+            
+            for (let i = 0; i < dotCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'scan-dot';
+                dot.style.left = `${Math.random() * 100}%`;
+                dot.style.top = `${Math.random() * 100}%`;
+                dot.style.animationDelay = `${Math.random() * 2}s`;
+                dot.style.animationDuration = `${0.5 + Math.random() * 1.5}s`;
+                elements.scanDots.appendChild(dot);
+            }
+        }
+
+        // ===== MOSTRAR ESTADO =====
+        function showStatus(text, color = '#FF9800') {
+            elements.status.textContent = text;
+            elements.status.style.borderColor = color;
+            elements.status.style.display = 'block';
+            
+            // Para mensajes temporales
+            if (text.includes('Escaneando') || text.includes('Buscando')) {
+                // Estos mensajes se mantienen hasta que cambien
+                return;
+            }
             
             setTimeout(() => {
-                elements.message.style.display = 'none';
-            }, duration);
+                if (isARActive) {
+                    elements.status.textContent = '🔍 Escaneando imán...';
+                    elements.status.style.borderColor = '#00ff00';
+                }
+            }, 3000);
         }
 
-        // ===== PANTALLA DE BIENVENIDA =====
-        function setupWelcomeScreen() {
-            // Contador para inicio automático
-            let countdown = 5;
-            const countdownText = elements.autoLoadText;
+        // ===== INICIAR EFECTO DE ESCANEO =====
+        function startScanEffect() {
+            elements.scanOverlay.style.display = 'block';
+            createScanDots();
             
-            // Actualizar contador
-            const updateCountdown = () => {
-                countdownText.textContent = `Iniciando automáticamente en ${countdown} segundos...`;
-                countdown--;
+            // Cambiar el color de las esquinas periódicamente
+            let colorIndex = 0;
+            const colors = ['#00ff00', '#00ffff', '#ffff00', '#ff00ff'];
+            
+            scanInterval = setInterval(() => {
+                const corners = document.querySelectorAll('.scan-corner');
+                corners.forEach(corner => {
+                    corner.style.borderColor = colors[colorIndex];
+                });
                 
-                if (countdown < 0) {
-                    clearInterval(autoStartTimer);
-                    goToMainScreen();
-                }
-            };
-            
-            // Iniciar contador
-            autoStartTimer = setInterval(updateCountdown, 1000);
-            
-            // Botón para saltar la espera
-            elements.enterBtn.addEventListener('click', () => {
-                clearInterval(autoStartTimer);
-                goToMainScreen();
-            });
-            
-            // Permitir tecla Enter para saltar
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && elements.welcomeScreen.style.display !== 'none') {
-                    clearInterval(autoStartTimer);
-                    goToMainScreen();
-                }
-            });
+                const scanLine = document.querySelector('.scan-line');
+                scanLine.style.background = `linear-gradient(90deg, 
+                    transparent 0%, 
+                    ${colors[colorIndex]} 20%, 
+                    ${colors[colorIndex]} 80%, 
+                    transparent 100%)`;
+                scanLine.style.boxShadow = `0 0 10px ${colors[colorIndex]}`;
+                
+                colorIndex = (colorIndex + 1) % colors.length;
+            }, 1000);
         }
 
-        // ===== IR A PANTALLA PRINCIPAL =====
-        function goToMainScreen() {
-            elements.welcomeScreen.style.display = 'none';
-            elements.mainScreen.style.display = 'flex';
-            
-            // Inicializar autenticación y controles
-            setupAuthentication();
-            setupControls();
-            
-            showMessage('¡Bienvenido a Imanes Turísticos AR! 🦜', 3000);
-        }
-
-        // ===== AUTENTICACIÓN =====
-        function setupAuthentication() {
-            // Botón de login
-            elements.loginBtn.addEventListener('click', () => {
-                elements.loginModal.style.display = 'flex';
-                elements.username.focus();
-            });
-
-            // Cancelar login
-            elements.cancelLogin.addEventListener('click', () => {
-                elements.loginModal.style.display = 'none';
-                elements.username.value = '';
-                elements.password.value = '';
-            });
-
-            // Enviar login
-            elements.submitLogin.addEventListener('click', () => {
-                const user = elements.username.value.trim();
-                const pass = elements.password.value.trim();
-                
-                // Validación simple
-                if (!user || !pass) {
-                    showMessage('⚠️ Por favor, completa todos los campos', 3000);
-                    return;
-                }
-                
-                // Demo simple - en producción usarías un servidor
-                if (user === 'admin' && pass === '1234') {
-                    isLoggedIn = true;
-                    currentUser = user;
-                    
-                    elements.loginModal.style.display = 'none';
-                    elements.username.value = '';
-                    elements.password.value = '';
-                    
-                    elements.loginBtn.textContent = `👤 ${user}`;
-                    elements.loginBtn.style.background = 'linear-gradient(45deg, #4CAF50, #2E7D32)';
-                    
-                    showMessage(`✅ ¡Bienvenido, ${user}!`, 2000);
-                    
-                    // Hacer parpadear el botón de inicio
-                    elements.startBtn.style.animation = 'pulse 1s infinite';
-                    setTimeout(() => {
-                        elements.startBtn.style.animation = 'none';
-                    }, 2000);
-                } else {
-                    showMessage('❌ Usuario o contraseña incorrectos', 3000);
-                    elements.password.value = '';
-                    elements.password.focus();
-                }
-            });
-
-            // Permitir Enter para login
-            elements.password.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    elements.submitLogin.click();
-                }
-            });
+        // ===== DETENER EFECTO DE ESCANEO =====
+        function stopScanEffect() {
+            elements.scanOverlay.style.display = 'none';
+            if (scanInterval) {
+                clearInterval(scanInterval);
+                scanInterval = null;
+            }
         }
 
         // ===== INICIAR EXPERIENCIA AR =====
         function startARExperience() {
-            if (!isLoggedIn) {
-                showMessage('⚠️ Por favor, inicia sesión primero', 3000);
-                elements.loginBtn.style.animation = 'none';
-                setTimeout(() => {
-                    elements.loginBtn.style.animation = 'pulse 0.5s 3';
-                }, 50);
-                return;
-            }
+            console.log('🚀 Iniciando AR con efecto de escaneo...');
             
-            console.log('🚀 Iniciando AR...');
+            // Ocultar pantalla de inicio
+            elements.startScreen.style.display = 'none';
             
-            // Ocultar pantalla principal
-            elements.mainScreen.style.display = 'none';
+            // Mostrar efecto de escaneo
+            startScanEffect();
+            
+            // Mostrar estado
+            showStatus('🔍 Escaneando imán...', '#00ff00');
             
             // Crear escena AR
             createARScene();
-            
-            // Mostrar controles
-            setTimeout(() => {
-                elements.exitBtn.style.display = 'flex';
-                elements.arControls.style.display = 'flex';
-                showMessage('🔍 Apunta la cámara al imán turístico...', 5000);
-            }, 500);
         }
 
         // ===== CREAR ESCENA AR =====
@@ -544,7 +496,7 @@
                     
                     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
                     
-                    <a-entity mindar-image-target="targetIndex: 0">
+                    <a-entity id="main-target" mindar-image-target="targetIndex: 0">
                         <a-video
                             src="#ar-video"
                             width="1.78"
@@ -559,13 +511,19 @@
             
             elements.arScene.style.display = 'block';
             
+            // Mostrar controles después de un momento
+            setTimeout(() => {
+                elements.exitBtn.style.display = 'flex';
+                elements.arControls.style.display = 'flex';
+            }, 500);
+            
             // Configurar eventos AR
             setTimeout(setupAREvents, 1000);
         }
 
         // ===== CONFIGURAR EVENTOS AR =====
         function setupAREvents() {
-            const target = document.querySelector('[mindar-image-target]');
+            const target = document.getElementById('main-target');
             
             if (!target) {
                 console.warn('Target no encontrado, reintentando...');
@@ -573,10 +531,17 @@
                 return;
             }
             
+            console.log('✅ Target configurado');
+            
             // Evento cuando se detecta el marcador
             target.addEventListener('targetFound', () => {
-                console.log('✅ Marcador detectado');
-                showMessage('🎯 ¡Imán detectado! Reproduciendo contenido...', 3000);
+                console.log('🎯 Marcador detectado!');
+                
+                // Detener efecto de escaneo
+                stopScanEffect();
+                
+                // Mostrar mensaje de éxito
+                showStatus('✅ Imán detectado! Reproduciendo...', '#4CAF50');
                 
                 // Obtener y reproducir video
                 arVideo = document.querySelector('#ar-video');
@@ -593,12 +558,21 @@
             // Evento cuando se pierde el marcador
             target.addEventListener('targetLost', () => {
                 console.log('❌ Marcador perdido');
-                showMessage('🔍 Buscando imán...', 5000);
                 
+                // Reanudar efecto de escaneo
+                startScanEffect();
+                
+                // Mostrar mensaje de búsqueda
+                showStatus('🔍 Escaneando imán...', '#00ff00');
+                
+                // Pausar video si está reproduciendo
                 if (arVideo) {
                     arVideo.pause();
                 }
             });
+            
+            // Marcar AR como activo
+            isARActive = true;
         }
 
         // ===== CONFIGURAR CONTROLES =====
@@ -618,17 +592,16 @@
                 elements.soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
                 elements.soundBtn.style.background = soundEnabled ? 
                     'rgba(76, 175, 80, 0.9)' : 'rgba(33, 150, 243, 0.9)';
-                
-                // Feedback visual
-                elements.soundBtn.style.transform = 'scale(1.2)';
-                setTimeout(() => {
-                    elements.soundBtn.style.transform = 'scale(1)';
-                }, 200);
             });
             
             // Botón de información
             elements.infoBtn.addEventListener('click', () => {
-                showMessage('💡 Consejo: Mantén el imán estable y con buena iluminación', 4000);
+                showStatus('💡 Mantén el imán estable dentro del marco de escaneo', '#2196F3');
+                setTimeout(() => {
+                    if (isARActive) {
+                        showStatus('🔍 Escaneando imán...', '#00ff00');
+                    }
+                }, 3000);
             });
             
             // Botón de repetir
@@ -636,15 +609,7 @@
                 if (arVideo) {
                     arVideo.currentTime = 0;
                     arVideo.play();
-                    showMessage('🔄 Reproduciendo desde el inicio', 2000);
-                    
-                    // Feedback visual
-                    elements.replayBtn.style.transform = 'scale(1.2)';
-                    elements.replayBtn.style.background = 'rgba(155, 89, 182, 0.9)';
-                    setTimeout(() => {
-                        elements.replayBtn.style.transform = 'scale(1)';
-                        elements.replayBtn.style.background = 'rgba(33, 150, 243, 0.9)';
-                    }, 200);
+                    showStatus('🔄 Reproduciendo desde el inicio', '#9C27B0');
                 }
             });
             
@@ -666,6 +631,9 @@
                 arVideo.currentTime = 0;
             }
             
+            // Detener efecto de escaneo
+            stopScanEffect();
+            
             // Limpiar escena
             elements.arScene.innerHTML = '';
             elements.arScene.style.display = 'none';
@@ -673,24 +641,23 @@
             // Ocultar controles
             elements.exitBtn.style.display = 'none';
             elements.arControls.style.display = 'none';
-            elements.message.style.display = 'none';
+            elements.status.style.display = 'none';
             
             // Resetear variables
             arVideo = null;
             soundEnabled = false;
+            isARActive = false;
             
-            // Mostrar pantalla principal
-            elements.mainScreen.style.display = 'flex';
-            
-            showMessage('👋 Experiencia finalizada. ¡Gracias por usar Imanes AR!', 3000);
+            // Mostrar pantalla de inicio
+            elements.startScreen.style.display = 'flex';
         }
 
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🦜 Aplicación AR con Tucán cargada');
+            console.log('🔍 Aplicación AR con efecto de escaneo cargada');
             
-            // Configurar pantalla de bienvenida
-            setupWelcomeScreen();
+            // Configurar controles
+            setupControls();
             
             // Ajustar altura en móviles
             function adjustHeight() {
@@ -699,14 +666,6 @@
             
             adjustHeight();
             window.addEventListener('resize', adjustHeight);
-            
-            // Verificar si hay imagen de tucán
-            setTimeout(() => {
-                const tucanImg = document.querySelector('.tucan-image');
-                if (tucanImg.naturalWidth === 0) {
-                    console.log('⚠️ Imagen de tucán no encontrada, usando imagen por defecto');
-                }
-            }, 1000);
         });
     </script>
 </body>
