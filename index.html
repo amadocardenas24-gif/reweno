@@ -384,24 +384,6 @@
             100% { opacity: 0; }
         }
 
-        @keyframes impactZoom {
-            0% { 
-                transform: scale(0.1);
-                opacity: 0;
-                filter: blur(10px);
-            }
-            15% { 
-                transform: scale(1.2);
-                opacity: 1;
-                filter: blur(0);
-            }
-            30% { transform: scale(0.95); }
-            45% { transform: scale(1.05); }
-            60% { transform: scale(0.98); }
-            75% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-
         @keyframes frameGlow {
             0%, 100% { 
                 box-shadow: 0 0 20px #00ff00,
@@ -533,10 +515,10 @@
     <!-- CONTROLES -->
     <button id="exit-btn">✕</button>
     <div id="ar-controls">
-        <button class="ar-btn" id="sound-btn">🔊</button>
+        <button class="ar-btn" id="sound-btn">🔇</button>
         <button class="ar-btn" id="info-btn">❓</button>
         <button class="ar-btn" id="replay-btn">↻</button>
-        <button class="ar-btn" id="impact-btn">💥</button>
+        <button class="ar-btn" id="flash-btn">⚡</button>
     </div>
 
     <!-- INDICADOR DE ESTADO -->
@@ -552,6 +534,7 @@
         let flashTimeout = null;
         let currentTarget = null;
         let textChangeInterval = null;
+        let isPlaying = false;
 
         // ===== ELEMENTOS DOM =====
         const elements = {
@@ -569,7 +552,7 @@
             soundBtn: document.getElementById('sound-btn'),
             infoBtn: document.getElementById('info-btn'),
             replayBtn: document.getElementById('replay-btn'),
-            impactBtn: document.getElementById('impact-btn')
+            flashBtn: document.getElementById('flash-btn')
         };
 
         // ===== MOSTRAR ESTADO =====
@@ -603,32 +586,59 @@
             }, 400);
         }
 
-        // ===== EFECTO ZOOM DE IMPACTO =====
-        function triggerZoomEffect() {
-            const videoElement = document.querySelector('#ar-video-element');
-            const frameElement = document.querySelector('#ar-frame');
+        // ===== MANEJO DE SONIDO MEJORADO =====
+        function initAudio() {
+            // Crear contexto de audio si no existe
+            if (!window.audioContext) {
+                window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
             
-            if (videoElement) {
-                videoElement.setAttribute('animation__zoom', {
-                    property: 'scale',
-                    from: '0.1 0.1 1',
-                    to: '1 1 1',
-                    dur: 800,
-                    easing: 'easeOutElastic',
-                    startEvents: 'targetFound'
+            // Solicitar interacción del usuario para desbloquear audio
+            document.addEventListener('click', unlockAudio, { once: true });
+            document.addEventListener('touchstart', unlockAudio, { once: true });
+        }
+
+        function unlockAudio() {
+            if (window.audioContext && window.audioContext.state === 'suspended') {
+                window.audioContext.resume().then(() => {
+                    console.log('✅ Audio desbloqueado');
+                    showStatus('🔊 Audio listo', '#4CAF50', 2000);
                 });
-                
-                // Aplicar animación CSS adicional
-                videoElement.style.animation = 'impactZoom 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            
+            if (arVideo) {
+                if (soundEnabled) {
+                    // Intentar activar sonido
+                    arVideo.muted = false;
+                    arVideo.volume = 1.0;
+                    
+                    // Forzar reproducción para desbloquear audio
+                    const playPromise = arVideo.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.log('Autoplay bloqueado, solicitando interacción');
+                            showStatus('🔊 Toca para activar sonido', '#2196F3', 3000);
+                            soundEnabled = false;
+                            arVideo.muted = true;
+                        });
+                    }
+                } else {
+                    arVideo.muted = true;
+                }
             }
             
-            if (frameElement) {
-                frameElement.style.animation = 'frameGlow 1.5s infinite alternate, shake 0.5s';
-                
-                setTimeout(() => {
-                    frameElement.style.animation = 'frameGlow 1.5s infinite alternate';
-                }, 500);
-            }
+            // Actualizar UI
+            elements.soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+            elements.soundBtn.style.background = soundEnabled ? 
+                'linear-gradient(45deg, #4CAF50, #2E7D32)' : 
+                'linear-gradient(45deg, #2196F3, #1976D2)';
+            
+            showStatus(soundEnabled ? '🔊 Sonido activado' : '🔇 Sonido desactivado', 
+                      soundEnabled ? '#4CAF50' : '#2196F3', 2000);
         }
 
         // ===== AUTORIZACIÓN =====
@@ -639,6 +649,9 @@
                 elements.authScreen.style.display = 'none';
                 elements.startScreen.style.display = 'flex';
                 showStatus('✅ Autorización aceptada. ¡Bienvenido!', '#4CAF50', 3000);
+                
+                // Inicializar sistema de audio
+                initAudio();
                 
                 // Habilitar botón de inicio
                 elements.startBtn.disabled = false;
@@ -706,7 +719,7 @@
                 return;
             }
             
-            console.log('🚀 Iniciando AR con efecto de zoom y texto 3D móvil...');
+            console.log('🚀 Iniciando AR con texto 3D móvil...');
             
             // Ocultar pantalla de inicio
             elements.startScreen.style.display = 'none';
@@ -748,7 +761,7 @@
                     
                     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
                     
-                    <!-- CONTENEDOR PRINCIPAL CON ZOOM -->
+                    <!-- CONTENEDOR PRINCIPAL -->
                     <a-entity id="main-target" mindar-image-target="targetIndex: 0">
                         
                         <!-- MARCO GLOW (CONTORNO) -->
@@ -766,7 +779,7 @@
                                            loop: true;"
                         ></a-plane>
                         
-                        <!-- VIDEO CON EFECTO ZOOM -->
+                        <!-- VIDEO -->
                         <a-video
                             id="ar-video-element"
                             src="#ar-video"
@@ -775,17 +788,11 @@
                             position="0 0 0"
                             rotation="0 0 0"
                             material="shader: flat; transparent: true;"
-                            animation__scale="property: scale; 
-                                            from: 0.1 0.1 1; 
-                                            to: 1 1 1; 
-                                            dur: 800; 
-                                            startEvents: targetFound; 
-                                            easing: easeOutElastic"
                         ></a-video>
                         
-                        <!-- TEXTO 3D MÓVIL HORIZONTAL (ANIMACIÓN COMPLEJA) -->
+                        <!-- TEXTO 3D MÓVIL HORIZONTAL -->
                         <a-entity id="3d-text-container" position="0 0.8 0" scale="0.6 0.6 0.6">
-                            <!-- Texto principal 3D que se mueve en círculo -->
+                            <!-- Texto principal 3D que se mueve -->
                             <a-text
                                 id="3d-moving-text"
                                 value="SÉTIMA MARAVILHA DO MUNDO"
@@ -793,15 +800,15 @@
                                 align="center"
                                 position="0 0 0"
                                 width="5"
-                                animation="property: position; 
-                                         from: 2.5 0.8 0; 
-                                         to: -2.5 0.8 0; 
+                                animation="property: position.x; 
+                                         from: 3; 
+                                         to: -3; 
                                          dur: 15000; 
                                          loop: true;
                                          easing: linear;
                                          dir: alternate"
-                                animation__rotation="property: rotation; 
-                                                   to: 0 360 0; 
+                                animation__rotation="property: rotation.y; 
+                                                   to: 360; 
                                                    dur: 20000; 
                                                    loop: true; 
                                                    easing: linear"
@@ -825,9 +832,9 @@
                                 position="0.05 -0.05 -0.1"
                                 width="5"
                                 opacity="0.5"
-                                animation="property: position; 
-                                         from: 2.5 0.8 -0.1; 
-                                         to: -2.5 0.8 -0.1; 
+                                animation="property: position.x; 
+                                         from: 3; 
+                                         to: -3; 
                                          dur: 15000; 
                                          loop: true;
                                          easing: linear;
@@ -852,9 +859,9 @@
                                          dur: 2000; 
                                          dir: alternate; 
                                          loop: true"
-                                animation__bounce="property: position; 
-                                                from: 0 0.6 0.01; 
-                                                to: 0 0.7 0.01; 
+                                animation__bounce="property: position.y; 
+                                                from: 0.6; 
+                                                to: 0.7; 
                                                 dur: 1000; 
                                                 dir: alternate; 
                                                 loop: true"
@@ -864,7 +871,7 @@
                             ></a-text>
                         </a-entity>
                         
-                        <!-- EFECTO DE PARTÍCULAS 3D ALREDEDOR DEL TEXTO -->
+                        <!-- EFECTO DE PARTÍCULAS -->
                         <a-entity id="particles" position="0 0 0" visible="false">
                             <a-circle 
                                 position="-0.5 0.3 0.01" 
@@ -987,16 +994,15 @@
             currentTarget.addEventListener('targetFound', () => {
                 console.log('🎯 Marcador detectado!');
                 
-                // Efectos visuales
+                // Efecto flash
                 triggerFlashEffect();
-                triggerZoomEffect();
                 stopScanEffect();
                 
                 // Cambiar el texto 3D cuando se detecta
                 change3DTextOnDetection();
                 
-                // Mostrar mensaje de éxito con impacto
-                showStatus('💥 ¡IMÁN DETECTADO! TEXTO 3D ACTIVADO', '#FF9800', 3000);
+                // Mostrar mensaje de éxito
+                showStatus('✅ ¡IMÁN DETECTADO! TEXTO 3D ACTIVADO', '#FF9800', 3000);
                 
                 // Mostrar partículas
                 const particles = document.querySelector('#particles');
@@ -1010,12 +1016,24 @@
                 // Obtener y reproducir video
                 arVideo = document.querySelector('#ar-video');
                 if (arVideo) {
-                    arVideo.muted = !soundEnabled;
-                    arVideo.play().catch(e => {
-                        console.log('Autoplay bloqueado, forzando mute');
-                        arVideo.muted = true;
-                        arVideo.play();
-                    });
+                    // Configurar video para reproducción
+                    arVideo.muted = true; // Iniciar siempre muteado
+                    arVideo.volume = 0;
+                    arVideo.loop = true;
+                    
+                    // Intentar reproducir
+                    const playPromise = arVideo.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            isPlaying = true;
+                            console.log('✅ Video reproduciéndose');
+                        }).catch(error => {
+                            console.log('❌ Error reproduciendo video:', error);
+                            showStatus('🔇 Video cargado (sonido desactivado)', '#2196F3', 3000);
+                            isPlaying = false;
+                        });
+                    }
                 }
             });
             
@@ -1045,8 +1063,9 @@
                 showStatus('🔍 ESCANEANDO IMÁN...', '#00ff00', 0);
                 
                 // Pausar video si está reproduciendo
-                if (arVideo) {
+                if (arVideo && isPlaying) {
                     arVideo.pause();
+                    isPlaying = false;
                 }
             });
             
@@ -1063,16 +1082,7 @@
             elements.exitBtn.addEventListener('click', exitAR);
             
             // Botón de sonido
-            elements.soundBtn.addEventListener('click', () => {
-                soundEnabled = !soundEnabled;
-                if (arVideo) {
-                    arVideo.muted = !soundEnabled;
-                }
-                elements.soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-                elements.soundBtn.style.background = soundEnabled ? 
-                    'linear-gradient(45deg, #4CAF50, #2E7D32)' : 
-                    'linear-gradient(45deg, #2196F3, #1976D2)';
-            });
+            elements.soundBtn.addEventListener('click', toggleSound);
             
             // Botón de información
             elements.infoBtn.addEventListener('click', () => {
@@ -1083,8 +1093,19 @@
             elements.replayBtn.addEventListener('click', () => {
                 if (arVideo) {
                     arVideo.currentTime = 0;
-                    arVideo.play();
-                    showStatus('🔄 Reproduciendo desde el inicio', '#9C27B0', 2000);
+                    
+                    // Intentar reproducir si está pausado
+                    if (!isPlaying) {
+                        const playPromise = arVideo.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(() => {
+                                isPlaying = true;
+                                showStatus('🔄 Reproduciendo desde el inicio', '#9C27B0', 2000);
+                            });
+                        }
+                    } else {
+                        showStatus('🔄 Reproduciendo desde el inicio', '#9C27B0', 2000);
+                    }
                     
                     // Efecto visual en el botón
                     elements.replayBtn.style.animation = 'pulse 0.5s';
@@ -1094,32 +1115,32 @@
                 }
             });
             
-            // Botón de impacto (repetir efecto zoom)
-            elements.impactBtn.addEventListener('click', () => {
-                if (currentTarget && currentTarget.components['mindar-image-target'].targetFound) {
-                    triggerFlashEffect();
-                    triggerZoomEffect();
-                    showStatus('💥 EFECTO DE IMPACTO ACTIVADO', '#FF9800', 2000);
-                    
-                    // Efecto visual en el botón
-                    elements.impactBtn.style.animation = 'pulse 0.3s 3';
-                    setTimeout(() => {
-                        elements.impactBtn.style.animation = '';
-                    }, 1000);
-                } else {
-                    showStatus('🔍 Primero detecta un imán para usar este efecto', '#f44336', 3000);
-                }
+            // Botón de flash
+            elements.flashBtn.addEventListener('click', () => {
+                triggerFlashEffect();
+                showStatus('⚡ Efecto flash activado', '#FF9800', 1500);
+                
+                // Efecto visual en el botón
+                elements.flashBtn.style.animation = 'pulse 0.3s';
+                setTimeout(() => {
+                    elements.flashBtn.style.animation = '';
+                }, 300);
             });
             
             // Tecla Escape para salir
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && elements.arScene.style.display === 'block') {
+                if (e.key === 'Escape' && isARActive) {
                     exitAR();
                 }
-                // Espacio para repetir efecto
-                if (e.key === ' ' && elements.arScene.style.display === 'block') {
+                // Espacio para efecto flash
+                if (e.key === ' ' && isARActive) {
                     e.preventDefault();
-                    elements.impactBtn.click();
+                    elements.flashBtn.click();
+                }
+                // S para sonido
+                if (e.key === 's' && isARActive) {
+                    e.preventDefault();
+                    toggleSound();
                 }
             });
         }
@@ -1132,6 +1153,7 @@
             if (arVideo) {
                 arVideo.pause();
                 arVideo.currentTime = 0;
+                arVideo.muted = true;
             }
             
             // Detener efecto de escaneo
@@ -1158,6 +1180,11 @@
             soundEnabled = false;
             isARActive = false;
             currentTarget = null;
+            isPlaying = false;
+            
+            // Resetear botón de sonido
+            elements.soundBtn.textContent = '🔇';
+            elements.soundBtn.style.background = 'linear-gradient(45deg, #2196F3, #1976D2)';
             
             // Mostrar pantalla de inicio
             elements.startScreen.style.display = 'flex';
@@ -1182,6 +1209,9 @@
             
             adjustHeight();
             window.addEventListener('resize', adjustHeight);
+            
+            // Inicializar audio
+            initAudio();
         });
     </script>
 </body>
