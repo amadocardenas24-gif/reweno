@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imanes Turísticos AR - Texto Móvil</title>
+    <title>Imanes Turísticos AR - Texto 3D Móvil</title>
     
     <script src="aframe.min.js"></script>
     <script src="mindar-image-aframe.prod.js"></script>
@@ -170,46 +170,6 @@
             box-shadow: 0 12px 30px rgba(255, 152, 0, 0.6);
         }
 
-        /* TEXTO MÓVIL HORIZONTAL */
-        #moving-text {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            background: linear-gradient(90deg, 
-                rgba(0, 0, 0, 0.9) 0%,
-                rgba(255, 152, 0, 0.8) 50%,
-                rgba(0, 0, 0, 0.9) 100%
-            );
-            display: none;
-            align-items: center;
-            overflow: hidden;
-            z-index: 995;
-            border-bottom: 3px solid #FF9800;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
-        }
-
-        .text-track {
-            display: flex;
-            white-space: nowrap;
-            animation: moveText 20s linear infinite;
-        }
-
-        .text-item {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 0 10px #FF9800,
-                        0 0 20px #FF5722,
-                        0 0 30px #FF9800;
-            margin-right: 100px;
-            padding: 5px 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
-            border: 2px solid #FF9800;
-        }
-
         /* EFECTO DE ESCANEO */
         #scan-overlay {
             position: fixed;
@@ -312,7 +272,7 @@
         /* BOTÓN SALIR MEJORADO */
         #exit-btn {
             position: fixed;
-            top: 60px; /* Debajo del texto móvil */
+            top: 20px;
             right: 20px;
             width: 60px;
             height: 60px;
@@ -373,7 +333,7 @@
         /* INDICADOR DE ESTADO */
         #status {
             position: fixed;
-            top: 60px; /* Debajo del texto móvil */
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);
@@ -424,15 +384,6 @@
             100% { opacity: 0; }
         }
 
-        @keyframes moveText {
-            0% {
-                transform: translateX(100%);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
         @keyframes impactZoom {
             0% { 
                 transform: scale(0.1);
@@ -477,6 +428,33 @@
             }
         }
 
+        @keyframes move3DText {
+            0% {
+                transform: translateX(2.5m) translateY(0.8m) translateZ(0);
+            }
+            25% {
+                transform: translateX(0) translateY(0.8m) translateZ(0.5m);
+            }
+            50% {
+                transform: translateX(-2.5m) translateY(0.8m) translateZ(0);
+            }
+            75% {
+                transform: translateX(0) translateY(0.8m) translateZ(-0.5m);
+            }
+            100% {
+                transform: translateX(2.5m) translateY(0.8m) translateZ(0);
+            }
+        }
+
+        @keyframes rotate3DText {
+            0% {
+                transform: rotateY(0deg);
+            }
+            100% {
+                transform: rotateY(360deg);
+            }
+        }
+
         /* RESPONSIVE */
         @media (max-width: 768px) {
             .logo, .auth-logo { font-size: 4rem; }
@@ -492,13 +470,6 @@
             .auth-container {
                 padding: 30px 20px;
                 margin: 0 20px;
-            }
-            #moving-text {
-                height: 40px;
-            }
-            .text-item {
-                font-size: 1.4rem;
-                margin-right: 60px;
             }
         }
     </style>
@@ -542,13 +513,6 @@
         </button>
     </div>
 
-    <!-- TEXTO MÓVIL HORIZONTAL -->
-    <div id="moving-text">
-        <div class="text-track" id="text-track">
-            <!-- El contenido se genera dinámicamente con JavaScript -->
-        </div>
-    </div>
-
     <!-- EFECTO DE ESCANEO -->
     <div id="scan-overlay">
         <div class="scan-container">
@@ -587,6 +551,7 @@
         let isAuthorized = false;
         let flashTimeout = null;
         let currentTarget = null;
+        let textChangeInterval = null;
 
         // ===== ELEMENTOS DOM =====
         const elements = {
@@ -595,8 +560,6 @@
             arScene: document.getElementById('ar-scene'),
             scanOverlay: document.getElementById('scan-overlay'),
             flashEffect: document.getElementById('flash-effect'),
-            movingText: document.getElementById('moving-text'),
-            textTrack: document.getElementById('text-track'),
             exitBtn: document.getElementById('exit-btn'),
             arControls: document.getElementById('ar-controls'),
             status: document.getElementById('status'),
@@ -608,25 +571,6 @@
             replayBtn: document.getElementById('replay-btn'),
             impactBtn: document.getElementById('impact-btn')
         };
-
-        // ===== CREAR TEXTO MÓVIL =====
-        function createMovingText() {
-            const text = "SÉTIMA MARAVILHA DO MUNDO";
-            const repeatCount = 8; // Número de veces que se repite el texto
-            
-            elements.textTrack.innerHTML = '';
-            
-            for (let i = 0; i < repeatCount; i++) {
-                const textElement = document.createElement('span');
-                textElement.className = 'text-item';
-                textElement.textContent = text;
-                textElement.style.animationDelay = `${i * 0.5}s`;
-                elements.textTrack.appendChild(textElement);
-            }
-            
-            // Iniciar animación
-            elements.textTrack.style.animation = 'moveText 20s linear infinite';
-        }
 
         // ===== MOSTRAR ESTADO =====
         function showStatus(text, color = '#FF9800', duration = 3000) {
@@ -762,14 +706,10 @@
                 return;
             }
             
-            console.log('🚀 Iniciando AR con efecto de zoom y texto móvil...');
+            console.log('🚀 Iniciando AR con efecto de zoom y texto 3D móvil...');
             
             // Ocultar pantalla de inicio
             elements.startScreen.style.display = 'none';
-            
-            // Mostrar texto móvil
-            createMovingText();
-            elements.movingText.style.display = 'flex';
             
             // Mostrar efecto de escaneo
             startScanEffect();
@@ -781,7 +721,7 @@
             createARScene();
         }
 
-        // ===== CREAR ESCENA AR CON ZOOM =====
+        // ===== CREAR ESCENA AR CON TEXTO 3D MÓVIL =====
         function createARScene() {
             elements.arScene.innerHTML = `
                 <a-scene 
@@ -843,25 +783,88 @@
                                             easing: easeOutElastic"
                         ></a-video>
                         
-                        <!-- TEXTO 3D EN LA PARTE SUPERIOR DEL VIDEO -->
-                        <a-entity position="0 0.7 0.01" rotation="0 0 0" scale="0.8 0.8 0.8">
+                        <!-- TEXTO 3D MÓVIL HORIZONTAL (ANIMACIÓN COMPLEJA) -->
+                        <a-entity id="3d-text-container" position="0 0.8 0" scale="0.6 0.6 0.6">
+                            <!-- Texto principal 3D que se mueve en círculo -->
                             <a-text
-                                id="3d-text"
+                                id="3d-moving-text"
                                 value="SÉTIMA MARAVILHA DO MUNDO"
                                 color="#FF9800"
                                 align="center"
-                                width="3"
                                 position="0 0 0"
-                                animation="property: color; 
-                                         from: #FF9800; 
-                                         to: #FF5722; 
-                                         dur: 2000; 
-                                         dir: alternate; 
-                                         loop: true"
+                                width="5"
+                                animation="property: position; 
+                                         from: 2.5 0.8 0; 
+                                         to: -2.5 0.8 0; 
+                                         dur: 15000; 
+                                         loop: true;
+                                         easing: linear;
+                                         dir: alternate"
+                                animation__rotation="property: rotation; 
+                                                   to: 0 360 0; 
+                                                   dur: 20000; 
+                                                   loop: true; 
+                                                   easing: linear"
+                                animation__color="property: color; 
+                                                from: #FF9800; 
+                                                to: #FF5722; 
+                                                dur: 3000; 
+                                                dir: alternate; 
+                                                loop: true"
+                                look-at="[camera]"
+                                shader="flat"
+                                side="double"
+                            ></a-text>
+                            
+                            <!-- Texto secundario (sombra/reflejo) -->
+                            <a-text
+                                id="3d-text-shadow"
+                                value="SÉTIMA MARAVILHA DO MUNDO"
+                                color="#000000"
+                                align="center"
+                                position="0.05 -0.05 -0.1"
+                                width="5"
+                                opacity="0.5"
+                                animation="property: position; 
+                                         from: 2.5 0.8 -0.1; 
+                                         to: -2.5 0.8 -0.1; 
+                                         dur: 15000; 
+                                         loop: true;
+                                         easing: linear;
+                                         dir: alternate"
+                                look-at="[camera]"
+                                shader="flat"
                             ></a-text>
                         </a-entity>
                         
-                        <!-- EFECTO DE PARTÍCULAS -->
+                        <!-- TEXTO 3D ESTÁTICO EN LA PARTE SUPERIOR -->
+                        <a-entity position="0 0.6 0.01" scale="0.4 0.4 0.4">
+                            <a-text
+                                id="3d-static-text"
+                                value="✨ EXPERIÊNCIA AR ✨"
+                                color="#00ffff"
+                                align="center"
+                                width="4"
+                                position="0 0 0"
+                                animation="property: color; 
+                                         from: #00ffff; 
+                                         to: #ff00ff; 
+                                         dur: 2000; 
+                                         dir: alternate; 
+                                         loop: true"
+                                animation__bounce="property: position; 
+                                                from: 0 0.6 0.01; 
+                                                to: 0 0.7 0.01; 
+                                                dur: 1000; 
+                                                dir: alternate; 
+                                                loop: true"
+                                look-at="[camera]"
+                                shader="flat"
+                                side="double"
+                            ></a-text>
+                        </a-entity>
+                        
+                        <!-- EFECTO DE PARTÍCULAS 3D ALREDEDOR DEL TEXTO -->
                         <a-entity id="particles" position="0 0 0" visible="false">
                             <a-circle 
                                 position="-0.5 0.3 0.01" 
@@ -904,6 +907,70 @@
             setTimeout(setupAREvents, 1000);
         }
 
+        // ===== CAMBIAR TEXTO 3D AL DETECTAR =====
+        function change3DTextOnDetection() {
+            const detectionTexts = [
+                "✨ SÉTIMA MARAVILHA DO MUNDO ✨",
+                "🎯 IMÃN DETECTADO! 🎯",
+                "💥 EXPERIÊNCIA ATIVADA 💥",
+                "🌟 CONTEÚDO EXCLUSIVO 🌟",
+                "🚀 REALIDADE AUMENTADA 🚀"
+            ];
+            
+            let currentIndex = 0;
+            const textElement = document.querySelector('#3d-moving-text');
+            const shadowElement = document.querySelector('#3d-text-shadow');
+            const staticElement = document.querySelector('#3d-static-text');
+            
+            if (!textElement) return;
+            
+            // Limpiar intervalo previo
+            if (textChangeInterval) {
+                clearInterval(textChangeInterval);
+            }
+            
+            // Cambiar el texto cada 3 segundos
+            textChangeInterval = setInterval(() => {
+                if (textElement && shadowElement) {
+                    const newText = detectionTexts[currentIndex];
+                    textElement.setAttribute('value', newText);
+                    shadowElement.setAttribute('value', newText);
+                    
+                    // Efecto de escala
+                    textElement.setAttribute('scale', '1.2 1.2 1.2');
+                    shadowElement.setAttribute('scale', '1.2 1.2 1.2');
+                    
+                    setTimeout(() => {
+                        textElement.setAttribute('scale', '1 1 1');
+                        shadowElement.setAttribute('scale', '1 1 1');
+                    }, 300);
+                }
+                
+                if (staticElement) {
+                    const staticTexts = [
+                        "✨ EXPERIÊNCIA AR ✨",
+                        "🎬 VÍDEO EM 3D 🎬",
+                        "💫 EFEITO ESPECIAL 💫",
+                        "🌍 TURISMO DIGITAL 🌍"
+                    ];
+                    staticElement.setAttribute('value', staticTexts[currentIndex % staticTexts.length]);
+                }
+                
+                currentIndex = (currentIndex + 1) % detectionTexts.length;
+                
+                // Si el target ya no está encontrado, limpiamos el intervalo
+                if (!currentTarget || !currentTarget.components['mindar-image-target'].targetFound) {
+                    clearInterval(textChangeInterval);
+                    textChangeInterval = null;
+                    
+                    // Restaurar textos originales
+                    if (textElement) textElement.setAttribute('value', 'SÉTIMA MARAVILHA DO MUNDO');
+                    if (shadowElement) shadowElement.setAttribute('value', 'SÉTIMA MARAVILHA DO MUNDO');
+                    if (staticElement) staticElement.setAttribute('value', '✨ EXPERIÊNCIA AR ✨');
+                }
+            }, 3000);
+        }
+
         // ===== CONFIGURAR EVENTOS AR =====
         function setupAREvents() {
             currentTarget = document.getElementById('main-target');
@@ -925,11 +992,11 @@
                 triggerZoomEffect();
                 stopScanEffect();
                 
-                // Cambiar el texto móvil cuando se detecta
-                changeMovingTextOnDetection();
+                // Cambiar el texto 3D cuando se detecta
+                change3DTextOnDetection();
                 
                 // Mostrar mensaje de éxito con impacto
-                showStatus('💥 ¡IMÁN DETECTADO! EFECTO ZOOM ACTIVADO', '#FF9800', 3000);
+                showStatus('💥 ¡IMÁN DETECTADO! TEXTO 3D ACTIVADO', '#FF9800', 3000);
                 
                 // Mostrar partículas
                 const particles = document.querySelector('#particles');
@@ -959,8 +1026,20 @@
                 // Reanudar efecto de escaneo
                 startScanEffect();
                 
-                // Volver al texto original
-                createMovingText();
+                // Limpiar intervalo de cambio de texto
+                if (textChangeInterval) {
+                    clearInterval(textChangeInterval);
+                    textChangeInterval = null;
+                }
+                
+                // Restaurar textos originales
+                const textElement = document.querySelector('#3d-moving-text');
+                const shadowElement = document.querySelector('#3d-text-shadow');
+                const staticElement = document.querySelector('#3d-static-text');
+                
+                if (textElement) textElement.setAttribute('value', 'SÉTIMA MARAVILHA DO MUNDO');
+                if (shadowElement) shadowElement.setAttribute('value', 'SÉTIMA MARAVILHA DO MUNDO');
+                if (staticElement) staticElement.setAttribute('value', '✨ EXPERIÊNCIA AR ✨');
                 
                 // Mostrar mensaje de búsqueda
                 showStatus('🔍 ESCANEANDO IMÁN...', '#00ff00', 0);
@@ -973,36 +1052,6 @@
             
             // Marcar AR como activo
             isARActive = true;
-        }
-
-        // ===== CAMBIAR TEXTO MÓVIL AL DETECTAR =====
-        function changeMovingTextOnDetection() {
-            const detectionTexts = [
-                "✨ SÉTIMA MARAVILHA DO MUNDO ✨",
-                "🎯 IMÃN DETECTADO! 🎯",
-                "💥 EXPERIÊNCIA ATIVADA 💥",
-                "🌟 CONTEÚDO EXCLUSIVO 🌟",
-                "🚀 REALIDADE AUMENTADA 🚀"
-            ];
-            
-            let currentIndex = 0;
-            
-            // Cambiar el texto cada 3 segundos
-            const textChangeInterval = setInterval(() => {
-                const textElements = document.querySelectorAll('.text-item');
-                
-                textElements.forEach(element => {
-                    element.textContent = detectionTexts[currentIndex];
-                    element.style.animation = 'textGlow 2s infinite alternate';
-                });
-                
-                currentIndex = (currentIndex + 1) % detectionTexts.length;
-                
-                // Si perdemos el target, limpiamos el intervalo
-                if (!isARActive || !currentTarget || !currentTarget.components['mindar-image-target'].targetFound) {
-                    clearInterval(textChangeInterval);
-                }
-            }, 3000);
         }
 
         // ===== CONFIGURAR CONTROLES =====
@@ -1027,7 +1076,7 @@
             
             // Botón de información
             elements.infoBtn.addEventListener('click', () => {
-                showStatus('🎬 El video aparece con efecto ZOOM para mayor impacto visual', '#2196F3', 4000);
+                showStatus('🎬 El texto 3D se mueve horizontalmente y rota en el espacio AR', '#2196F3', 4000);
             });
             
             // Botón de repetir
@@ -1088,8 +1137,11 @@
             // Detener efecto de escaneo
             stopScanEffect();
             
-            // Ocultar texto móvil
-            elements.movingText.style.display = 'none';
+            // Limpiar intervalo de cambio de texto
+            if (textChangeInterval) {
+                clearInterval(textChangeInterval);
+                textChangeInterval = null;
+            }
             
             // Limpiar escena
             elements.arScene.innerHTML = '';
@@ -1115,7 +1167,7 @@
 
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('💥 Aplicación AR con texto móvil cargada');
+            console.log('💥 Aplicación AR con texto 3D móvil cargada');
             
             // Configurar autorización
             setupAuthorization();
