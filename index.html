@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imanes Turísticos AR - Escaneo</title>
+    <title>Imanes Turísticos AR - Zoom de Impacto</title>
     
     <script src="aframe.min.js"></script>
     <script src="mindar-image-aframe.prod.js"></script>
@@ -24,6 +24,97 @@
             overflow: hidden;
         }
 
+        /* PANTALLA DE AUTORIZACIÓN */
+        #auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            z-index: 2000;
+        }
+
+        .auth-container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            border: 3px solid #FF9800;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #FF9800;
+        }
+
+        .auth-description {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .permissions-list {
+            text-align: left;
+            margin: 25px 0;
+            padding: 0 20px;
+        }
+
+        .permissions-list li {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+        }
+
+        .permissions-list li::before {
+            content: "✅";
+            margin-right: 10px;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .auth-btn {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s;
+            min-width: 180px;
+        }
+
+        .accept-btn {
+            background: linear-gradient(45deg, #4CAF50, #2E7D32);
+            color: white;
+        }
+
+        .decline-btn {
+            background: linear-gradient(45deg, #f44336, #c62828);
+            color: white;
+        }
+
         /* PANTALLA DE INICIO */
         #start-screen {
             position: fixed;
@@ -32,7 +123,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(135deg, #1a237e, #0d47a1);
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -79,16 +170,6 @@
             box-shadow: 0 12px 30px rgba(255, 152, 0, 0.6);
         }
 
-        /* ESCENA AR */
-        #ar-scene {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-        }
-
         /* EFECTO DE ESCANEO */
         #scan-overlay {
             position: fixed;
@@ -133,6 +214,7 @@
             width: 30px;
             height: 30px;
             border: 3px solid #00ff00;
+            animation: cornerPulse 1.5s infinite;
         }
 
         .corner-tl {
@@ -163,7 +245,31 @@
             border-top: none;
         }
 
-        /* BOTÓN SALIR */
+        /* ESCENA AR */
+        #ar-scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        /* EFECTO DE FLASH CUANDO DETECTA */
+        #flash-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            z-index: 997;
+            pointer-events: none;
+            display: none;
+        }
+
+        /* BOTÓN SALIR MEJORADO */
         #exit-btn {
             position: fixed;
             top: 20px;
@@ -171,8 +277,8 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: rgba(244, 67, 54, 0.95);
-            border: 2px solid white;
+            background: linear-gradient(45deg, #f44336, #c62828);
+            border: 3px solid white;
             color: white;
             font-size: 1.8rem;
             cursor: pointer;
@@ -181,12 +287,13 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+            box-shadow: 0 5px 20px rgba(244, 67, 54, 0.5);
         }
 
         #exit-btn:hover {
             transform: scale(1.1);
-            background: rgba(244, 67, 54, 1);
+            background: linear-gradient(45deg, #ff5252, #ff1744);
+            box-shadow: 0 8px 25px rgba(244, 67, 54, 0.7);
         }
 
         /* CONTROLES AR */
@@ -205,8 +312,8 @@
             width: 70px;
             height: 70px;
             border-radius: 50%;
-            background: rgba(33, 150, 243, 0.95);
-            border: 2px solid white;
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            border: 3px solid white;
             color: white;
             font-size: 2rem;
             cursor: pointer;
@@ -214,12 +321,13 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
-            box-shadow: 0 5px 20px rgba(33, 150, 243, 0.4);
+            box-shadow: 0 5px 20px rgba(33, 150, 243, 0.5);
         }
 
         .ar-btn:hover {
             transform: scale(1.1);
-            background: rgba(33, 150, 243, 1);
+            background: linear-gradient(45deg, #42a5f5, #1e88e5);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.7);
         }
 
         /* INDICADOR DE ESTADO */
@@ -239,22 +347,7 @@
             border: 2px solid #FF9800;
             max-width: 90%;
             backdrop-filter: blur(10px);
-        }
-
-        /* PUNTOS DE ESCANEO */
-        .scan-dots {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-
-        .scan-dot {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: #00ff00;
-            border-radius: 50%;
-            animation: dotAppear 1s infinite alternate;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
         }
 
         /* ANIMACIONES */
@@ -280,52 +373,106 @@
             50% { transform: scale(1.05); }
         }
 
-        @keyframes dotAppear {
-            0% {
-                opacity: 0.2;
-                transform: scale(0.5);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
         @keyframes cornerPulse {
             0%, 100% { opacity: 0.3; }
             50% { opacity: 1; }
         }
 
-        .scan-corner {
-            animation: cornerPulse 1.5s infinite;
+        @keyframes flash {
+            0% { opacity: 0; }
+            50% { opacity: 0.7; }
+            100% { opacity: 0; }
         }
 
-        .corner-tl { animation-delay: 0s; }
-        .corner-tr { animation-delay: 0.5s; }
-        .corner-bl { animation-delay: 1s; }
-        .corner-br { animation-delay: 1.5s; }
+        @keyframes impactZoom {
+            0% { 
+                transform: scale(0.1);
+                opacity: 0;
+                filter: blur(10px);
+            }
+            15% { 
+                transform: scale(1.2);
+                opacity: 1;
+                filter: blur(0);
+            }
+            30% { transform: scale(0.95); }
+            45% { transform: scale(1.05); }
+            60% { transform: scale(0.98); }
+            75% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes frameGlow {
+            0%, 100% { 
+                box-shadow: 0 0 20px #00ff00,
+                          0 0 40px #00ff00,
+                          0 0 60px #00ff00;
+            }
+            50% { 
+                box-shadow: 0 0 30px #ff9800,
+                          0 0 60px #ff9800,
+                          0 0 90px #ff9800;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px) translateY(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px) translateY(5px); }
+        }
 
         /* RESPONSIVE */
         @media (max-width: 768px) {
-            .logo { font-size: 4rem; }
-            .title { font-size: 2rem; }
-            .subtitle { font-size: 1rem; }
-            .start-btn { padding: 15px 40px; font-size: 1.2rem; }
+            .logo, .auth-logo { font-size: 4rem; }
+            .title, .auth-title { font-size: 2rem; }
+            .subtitle, .auth-description { font-size: 1rem; }
+            .start-btn, .auth-btn { padding: 15px 40px; font-size: 1.2rem; }
             .ar-btn { width: 60px; height: 60px; font-size: 1.6rem; }
             #exit-btn { width: 50px; height: 50px; font-size: 1.5rem; }
             .scan-container {
                 top: 25%;
                 height: 50%;
             }
+            .auth-container {
+                padding: 30px 20px;
+                margin: 0 20px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- PANTALLA DE AUTORIZACIÓN -->
+    <div id="auth-screen">
+        <div class="auth-container">
+            <div class="auth-logo">🦜</div>
+            <h1 class="auth-title">AUTORIZACIÓN REQUERIDA</h1>
+            <p class="auth-description">
+                Para usar esta experiencia en Realidad Aumentada, necesitamos tu autorización para:
+            </p>
+            
+            <ul class="permissions-list">
+                <li>Acceder a la cámara de tu dispositivo</li>
+                <li>Procesar imágenes en tiempo real</li>
+                <li>Mostrar contenido multimedia</li>
+                <li>Usar efectos visuales de impacto</li>
+            </ul>
+            
+            <p class="auth-description" style="font-size: 0.9rem; margin-top: 20px;">
+                ⚠️ <strong>Nota:</strong> No almacenamos ni compartimos tus datos.
+            </p>
+            
+            <div class="auth-buttons">
+                <button class="auth-btn accept-btn" id="accept-btn">✅ ACEPTAR</button>
+                <button class="auth-btn decline-btn" id="decline-btn">❌ RECHAZAR</button>
+            </div>
+        </div>
+    </div>
+
     <!-- PANTALLA DE INICIO -->
     <div id="start-screen">
         <div class="logo">🦜</div>
         <h1 class="title">IMANES TURÍSTICOS AR</h1>
-        <p class="subtitle">Escanea cualquier imán turístico para activar contenido exclusivo en Realidad Aumentada</p>
+        <p class="subtitle">Escanea cualquier imán turístico para activar contenido exclusivo con efecto de impacto</p>
         
         <button class="start-btn" id="start-btn">
             🔍 INICIAR ESCANEO
@@ -340,9 +487,11 @@
             <div class="scan-corner corner-tr"></div>
             <div class="scan-corner corner-bl"></div>
             <div class="scan-corner corner-br"></div>
-            <div class="scan-dots" id="scan-dots"></div>
         </div>
     </div>
+
+    <!-- EFECTO DE FLASH -->
+    <div id="flash-effect"></div>
 
     <!-- ESCENA AR -->
     <div id="ar-scene"></div>
@@ -353,6 +502,7 @@
         <button class="ar-btn" id="sound-btn">🔊</button>
         <button class="ar-btn" id="info-btn">❓</button>
         <button class="ar-btn" id="replay-btn">↻</button>
+        <button class="ar-btn" id="impact-btn">💥</button>
     </div>
 
     <!-- INDICADOR DE ESTADO -->
@@ -364,62 +514,121 @@
         let soundEnabled = false;
         let isARActive = false;
         let scanInterval = null;
+        let isAuthorized = false;
+        let flashTimeout = null;
+        let currentTarget = null;
 
         // ===== ELEMENTOS DOM =====
         const elements = {
+            authScreen: document.getElementById('auth-screen'),
             startScreen: document.getElementById('start-screen'),
             arScene: document.getElementById('ar-scene'),
             scanOverlay: document.getElementById('scan-overlay'),
+            flashEffect: document.getElementById('flash-effect'),
             exitBtn: document.getElementById('exit-btn'),
             arControls: document.getElementById('ar-controls'),
             status: document.getElementById('status'),
+            acceptBtn: document.getElementById('accept-btn'),
+            declineBtn: document.getElementById('decline-btn'),
             startBtn: document.getElementById('start-btn'),
             soundBtn: document.getElementById('sound-btn'),
             infoBtn: document.getElementById('info-btn'),
             replayBtn: document.getElementById('replay-btn'),
-            scanDots: document.getElementById('scan-dots')
+            impactBtn: document.getElementById('impact-btn')
         };
 
-        // ===== CREAR PUNTOS DE ESCANEO =====
-        function createScanDots() {
-            elements.scanDots.innerHTML = '';
-            const dotCount = 30;
-            
-            for (let i = 0; i < dotCount; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'scan-dot';
-                dot.style.left = `${Math.random() * 100}%`;
-                dot.style.top = `${Math.random() * 100}%`;
-                dot.style.animationDelay = `${Math.random() * 2}s`;
-                dot.style.animationDuration = `${0.5 + Math.random() * 1.5}s`;
-                elements.scanDots.appendChild(dot);
-            }
-        }
-
         // ===== MOSTRAR ESTADO =====
-        function showStatus(text, color = '#FF9800') {
+        function showStatus(text, color = '#FF9800', duration = 3000) {
             elements.status.textContent = text;
             elements.status.style.borderColor = color;
             elements.status.style.display = 'block';
             
-            // Para mensajes temporales
-            if (text.includes('Escaneando') || text.includes('Buscando')) {
-                // Estos mensajes se mantienen hasta que cambien
-                return;
+            if (duration > 0) {
+                setTimeout(() => {
+                    if (isARActive && elements.status.textContent === text) {
+                        elements.status.style.display = 'none';
+                    }
+                }, duration);
             }
+        }
+
+        // ===== EFECTO FLASH =====
+        function triggerFlashEffect() {
+            clearTimeout(flashTimeout);
+            
+            elements.flashEffect.style.display = 'block';
+            elements.flashEffect.style.animation = 'none';
             
             setTimeout(() => {
-                if (isARActive) {
-                    elements.status.textContent = '🔍 Escaneando imán...';
-                    elements.status.style.borderColor = '#00ff00';
-                }
-            }, 3000);
+                elements.flashEffect.style.animation = 'flash 0.3s';
+            }, 10);
+            
+            flashTimeout = setTimeout(() => {
+                elements.flashEffect.style.display = 'none';
+            }, 400);
+        }
+
+        // ===== EFECTO ZOOM DE IMPACTO =====
+        function triggerZoomEffect() {
+            const videoElement = document.querySelector('#ar-video-element');
+            const frameElement = document.querySelector('#ar-frame');
+            
+            if (videoElement) {
+                videoElement.setAttribute('animation__zoom', {
+                    property: 'scale',
+                    from: '0.1 0.1 1',
+                    to: '1 1 1',
+                    dur: 800,
+                    easing: 'easeOutElastic',
+                    startEvents: 'targetFound'
+                });
+                
+                // Aplicar animación CSS adicional
+                videoElement.style.animation = 'impactZoom 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+            }
+            
+            if (frameElement) {
+                frameElement.style.animation = 'frameGlow 1.5s infinite alternate, shake 0.5s';
+                
+                setTimeout(() => {
+                    frameElement.style.animation = 'frameGlow 1.5s infinite alternate';
+                }, 500);
+            }
+        }
+
+        // ===== AUTORIZACIÓN =====
+        function setupAuthorization() {
+            // Aceptar autorización
+            elements.acceptBtn.addEventListener('click', () => {
+                isAuthorized = true;
+                elements.authScreen.style.display = 'none';
+                elements.startScreen.style.display = 'flex';
+                showStatus('✅ Autorización aceptada. ¡Bienvenido!', '#4CAF50', 3000);
+                
+                // Habilitar botón de inicio
+                elements.startBtn.disabled = false;
+            });
+            
+            // Rechazar autorización
+            elements.declineBtn.addEventListener('click', () => {
+                showStatus('❌ Autorización requerida para continuar', '#f44336', 5000);
+                
+                // Animación de rechazo
+                elements.declineBtn.style.transform = 'scale(1.2)';
+                elements.declineBtn.style.background = 'linear-gradient(45deg, #ff5252, #ff1744)';
+                setTimeout(() => {
+                    elements.declineBtn.style.transform = 'scale(1)';
+                    elements.declineBtn.style.background = 'linear-gradient(45deg, #f44336, #c62828)';
+                }, 300);
+            });
+            
+            // Mostrar pantalla de autorización al cargar
+            elements.authScreen.style.display = 'flex';
         }
 
         // ===== INICIAR EFECTO DE ESCANEO =====
         function startScanEffect() {
             elements.scanOverlay.style.display = 'block';
-            createScanDots();
             
             // Cambiar el color de las esquinas periódicamente
             let colorIndex = 0;
@@ -427,20 +636,23 @@
             
             scanInterval = setInterval(() => {
                 const corners = document.querySelectorAll('.scan-corner');
-                corners.forEach(corner => {
-                    corner.style.borderColor = colors[colorIndex];
-                });
-                
                 const scanLine = document.querySelector('.scan-line');
-                scanLine.style.background = `linear-gradient(90deg, 
-                    transparent 0%, 
-                    ${colors[colorIndex]} 20%, 
-                    ${colors[colorIndex]} 80%, 
-                    transparent 100%)`;
-                scanLine.style.boxShadow = `0 0 10px ${colors[colorIndex]}`;
                 
-                colorIndex = (colorIndex + 1) % colors.length;
-            }, 1000);
+                if (corners.length > 0 && scanLine) {
+                    corners.forEach(corner => {
+                        corner.style.borderColor = colors[colorIndex];
+                    });
+                    
+                    scanLine.style.background = `linear-gradient(90deg, 
+                        transparent 0%, 
+                        ${colors[colorIndex]} 20%, 
+                        ${colors[colorIndex]} 80%, 
+                        transparent 100%)`;
+                    scanLine.style.boxShadow = `0 0 10px ${colors[colorIndex]}`;
+                    
+                    colorIndex = (colorIndex + 1) % colors.length;
+                }
+            }, 800);
         }
 
         // ===== DETENER EFECTO DE ESCANEO =====
@@ -454,7 +666,12 @@
 
         // ===== INICIAR EXPERIENCIA AR =====
         function startARExperience() {
-            console.log('🚀 Iniciando AR con efecto de escaneo...');
+            if (!isAuthorized) {
+                showStatus('⚠️ Primero debes autorizar la experiencia', '#FF9800', 3000);
+                return;
+            }
+            
+            console.log('🚀 Iniciando AR con efecto de zoom...');
             
             // Ocultar pantalla de inicio
             elements.startScreen.style.display = 'none';
@@ -463,13 +680,13 @@
             startScanEffect();
             
             // Mostrar estado
-            showStatus('🔍 Escaneando imán...', '#00ff00');
+            showStatus('🔍 ESCANEANDO IMÁN...', '#00ff00', 0);
             
             // Crear escena AR
             createARScene();
         }
 
-        // ===== CREAR ESCENA AR =====
+        // ===== CREAR ESCENA AR CON ZOOM =====
         function createARScene() {
             elements.arScene.innerHTML = `
                 <a-scene 
@@ -496,15 +713,68 @@
                     
                     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
                     
+                    <!-- CONTENEDOR PRINCIPAL CON ZOOM -->
                     <a-entity id="main-target" mindar-image-target="targetIndex: 0">
+                        
+                        <!-- MARCO GLOW (CONTORNO) -->
+                        <a-plane
+                            id="ar-frame"
+                            position="0 0 -0.01"
+                            width="1.9"
+                            height="1.15"
+                            material="color: #00ff00; shader: flat; transparent: true; opacity: 0.7;"
+                            animation__glow="property: material.color; 
+                                           from: #00ff00; 
+                                           to: #ff9800; 
+                                           dur: 1500; 
+                                           dir: alternate; 
+                                           loop: true;"
+                        ></a-plane>
+                        
+                        <!-- VIDEO CON EFECTO ZOOM -->
                         <a-video
+                            id="ar-video-element"
                             src="#ar-video"
                             width="1.78"
                             height="1"
                             position="0 0 0"
                             rotation="0 0 0"
                             material="shader: flat; transparent: true;"
+                            animation__scale="property: scale; 
+                                            from: 0.1 0.1 1; 
+                                            to: 1 1 1; 
+                                            dur: 800; 
+                                            startEvents: targetFound; 
+                                            easing: easeOutElastic"
                         ></a-video>
+                        
+                        <!-- EFECTO DE PARTÍCULAS -->
+                        <a-entity id="particles" position="0 0 0" visible="false">
+                            <a-circle 
+                                position="-0.5 0.3 0.01" 
+                                radius="0.05" 
+                                material="color: #FF9800; opacity: 0.8"
+                                animation="property: scale; from: 0.1; to: 2; dur: 500; startEvents: targetFound"
+                            ></a-circle>
+                            <a-circle 
+                                position="0.5 0.3 0.01" 
+                                radius="0.05" 
+                                material="color: #FF9800; opacity: 0.8"
+                                animation="property: scale; from: 0.1; to: 2; dur: 500; startEvents: targetFound; delay: 100"
+                            ></a-circle>
+                            <a-circle 
+                                position="-0.5 -0.3 0.01" 
+                                radius="0.05" 
+                                material="color: #FF9800; opacity: 0.8"
+                                animation="property: scale; from: 0.1; to: 2; dur: 500; startEvents: targetFound; delay: 200"
+                            ></a-circle>
+                            <a-circle 
+                                position="0.5 -0.3 0.01" 
+                                radius="0.05" 
+                                material="color: #FF9800; opacity: 0.8"
+                                animation="property: scale; from: 0.1; to: 2; dur: 500; startEvents: targetFound; delay: 300"
+                            ></a-circle>
+                        </a-entity>
                     </a-entity>
                 </a-scene>
             `;
@@ -523,9 +793,9 @@
 
         // ===== CONFIGURAR EVENTOS AR =====
         function setupAREvents() {
-            const target = document.getElementById('main-target');
+            currentTarget = document.getElementById('main-target');
             
-            if (!target) {
+            if (!currentTarget) {
                 console.warn('Target no encontrado, reintentando...');
                 setTimeout(setupAREvents, 500);
                 return;
@@ -534,14 +804,25 @@
             console.log('✅ Target configurado');
             
             // Evento cuando se detecta el marcador
-            target.addEventListener('targetFound', () => {
+            currentTarget.addEventListener('targetFound', () => {
                 console.log('🎯 Marcador detectado!');
                 
-                // Detener efecto de escaneo
+                // Efectos visuales
+                triggerFlashEffect();
+                triggerZoomEffect();
                 stopScanEffect();
                 
-                // Mostrar mensaje de éxito
-                showStatus('✅ Imán detectado! Reproduciendo...', '#4CAF50');
+                // Mostrar mensaje de éxito con impacto
+                showStatus('💥 ¡IMÁN DETECTADO! EFECTO ZOOM ACTIVADO', '#FF9800', 3000);
+                
+                // Mostrar partículas
+                const particles = document.querySelector('#particles');
+                if (particles) {
+                    particles.setAttribute('visible', 'true');
+                    setTimeout(() => {
+                        particles.setAttribute('visible', 'false');
+                    }, 1000);
+                }
                 
                 // Obtener y reproducir video
                 arVideo = document.querySelector('#ar-video');
@@ -556,14 +837,14 @@
             });
             
             // Evento cuando se pierde el marcador
-            target.addEventListener('targetLost', () => {
+            currentTarget.addEventListener('targetLost', () => {
                 console.log('❌ Marcador perdido');
                 
                 // Reanudar efecto de escaneo
                 startScanEffect();
                 
                 // Mostrar mensaje de búsqueda
-                showStatus('🔍 Escaneando imán...', '#00ff00');
+                showStatus('🔍 ESCANEANDO IMÁN...', '#00ff00', 0);
                 
                 // Pausar video si está reproduciendo
                 if (arVideo) {
@@ -591,17 +872,13 @@
                 }
                 elements.soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
                 elements.soundBtn.style.background = soundEnabled ? 
-                    'rgba(76, 175, 80, 0.9)' : 'rgba(33, 150, 243, 0.9)';
+                    'linear-gradient(45deg, #4CAF50, #2E7D32)' : 
+                    'linear-gradient(45deg, #2196F3, #1976D2)';
             });
             
             // Botón de información
             elements.infoBtn.addEventListener('click', () => {
-                showStatus('💡 Mantén el imán estable dentro del marco de escaneo', '#2196F3');
-                setTimeout(() => {
-                    if (isARActive) {
-                        showStatus('🔍 Escaneando imán...', '#00ff00');
-                    }
-                }, 3000);
+                showStatus('🎬 El video aparece con efecto ZOOM para mayor impacto visual', '#2196F3', 4000);
             });
             
             // Botón de repetir
@@ -609,7 +886,30 @@
                 if (arVideo) {
                     arVideo.currentTime = 0;
                     arVideo.play();
-                    showStatus('🔄 Reproduciendo desde el inicio', '#9C27B0');
+                    showStatus('🔄 Reproduciendo desde el inicio', '#9C27B0', 2000);
+                    
+                    // Efecto visual en el botón
+                    elements.replayBtn.style.animation = 'pulse 0.5s';
+                    setTimeout(() => {
+                        elements.replayBtn.style.animation = '';
+                    }, 500);
+                }
+            });
+            
+            // Botón de impacto (repetir efecto zoom)
+            elements.impactBtn.addEventListener('click', () => {
+                if (currentTarget && currentTarget.components['mindar-image-target'].targetFound) {
+                    triggerFlashEffect();
+                    triggerZoomEffect();
+                    showStatus('💥 EFECTO DE IMPACTO ACTIVADO', '#FF9800', 2000);
+                    
+                    // Efecto visual en el botón
+                    elements.impactBtn.style.animation = 'pulse 0.3s 3';
+                    setTimeout(() => {
+                        elements.impactBtn.style.animation = '';
+                    }, 1000);
+                } else {
+                    showStatus('🔍 Primero detecta un imán para usar este efecto', '#f44336', 3000);
                 }
             });
             
@@ -617,6 +917,11 @@
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && elements.arScene.style.display === 'block') {
                     exitAR();
+                }
+                // Espacio para repetir efecto
+                if (e.key === ' ' && elements.arScene.style.display === 'block') {
+                    e.preventDefault();
+                    elements.impactBtn.click();
                 }
             });
         }
@@ -642,19 +947,26 @@
             elements.exitBtn.style.display = 'none';
             elements.arControls.style.display = 'none';
             elements.status.style.display = 'none';
+            elements.flashEffect.style.display = 'none';
             
             // Resetear variables
             arVideo = null;
             soundEnabled = false;
             isARActive = false;
+            currentTarget = null;
             
             // Mostrar pantalla de inicio
             elements.startScreen.style.display = 'flex';
+            
+            showStatus('👋 Experiencia finalizada. ¡Gracias por usar Imanes AR!', '#FF9800', 3000);
         }
 
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🔍 Aplicación AR con efecto de escaneo cargada');
+            console.log('💥 Aplicación AR con efecto ZOOM cargada');
+            
+            // Configurar autorización
+            setupAuthorization();
             
             // Configurar controles
             setupControls();
